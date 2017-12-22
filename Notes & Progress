@@ -1,0 +1,10 @@
+# Notes & Progress
+Questions to look into:
+- Are turns objects?
+- How does the turn sequence / looper look like?
+- Should a unit know which player is its owner?
+    maybe, because otherwise it will be hard to know where a unit can move or attack
+- Should a region know which player is its owner?
+    maybe, because otherwise, how do you check where a unit can be placed?
+- OR MAYBE, for the above questions: this is something the loop sequence decides?
+- Should a region know its Continent? -> no
