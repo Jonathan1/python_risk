@@ -1,0 +1,11 @@
+Structure of the code:
+
+Initialize game:
+    Initialize Players
+    Initialize Board
+Start Game Loop:
+    Turn Sequence:
+        Players choose starting Locations (place units)
+    Turn:
+        Place a unit (according to points you have)
+        Move units
