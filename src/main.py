@@ -1,12 +1,21 @@
-from src.models import Board, Continent, Region, Player, Unit
+from src.models import Board, Continent, Region, Player, Unit, Soldier, Horse
 
 
 def print_board(board):
     for region in board.regionList:
         if region.owner is None:
-            print("region {}: O".format(region.name))
+            print("region {}, owner O, soldiers 0, horses 0, power 0".format(region.name))
         else:
-            print("region {}: {}".format(region.name, region.owner))
+            power = 0
+            soldiers = 0
+            horses = 0
+            for unit in region.units:
+                if unit.name == "Horse":
+                    horses += 1
+                elif unit.name == "Soldier":
+                    soldiers += 1
+                power += unit.power
+            print("region {}, owner {}, soldiers {}, horses {},  power {}".format(region.name, region.owner, soldiers, horses, power))
 
 
 def initialize_board():
@@ -34,15 +43,12 @@ def initialize_players(nr_players):
     return players
 
 
-def initialize_unit_types():
-    unit_type_list = []
-    base_unit = Unit("base")
-    unit_type_list.append(base_unit)
-    return unit_type_list
-
-
 def region_names(region_list):
     return [region.name for region in region_list]
+
+
+def owned_region_names(region_list, player):
+    return [region.name for region in region_list if region.owner == player.name]
 
 
 def choose_land(board, player):
@@ -50,16 +56,26 @@ def choose_land(board, player):
     succeeded = False
     for region in board.regionList:
         if region.name == region_name:
+            if region.owner is not None:
+                print("region is already taken")
+                break
             region.change_owner(player.name)
+            region.add_units(Soldier())
             succeeded = True
+            break
     while not succeeded:
         print("please put in a valid name, one of the following:")
         print(region_names(board.regionList))
         region_name = input("player {} choose a land to occupy".format(player.name))
         for region in board.regionList:
             if region.name == region_name:
+                if region.owner is not None:
+                    print("region is already taken")
+                    break
                 region.change_owner(player.name)
+                region.add_units(Soldier())
                 succeeded = True
+                break
 
 
 def all_lands_owned(board):
@@ -79,32 +95,44 @@ def players_choose_lands(board, players):
         print_board(board)
 
 
-def add_unit(board, player, unit_types):
+def add_unit(board, player):
     region_name = input("{} choose a region to add a unit too".format(player.name))
     succeeded = False
     for region in board.regionList:
         if region.name == region_name:
-            region.add_units(unit_types[0].copy_unit())
+            if region.owner != player.name:
+                print("This region is not owned by you")
+                break
+            region.add_units(Soldier())
             succeeded = True
+            break
     while not succeeded:
         print("please put in a valid name, one of the following:")
-        print(region_names(board.regionList))
+        print(owned_region_names(board.regionList, player))
+        region_name = input("{} choose a region to add a unit too".format(player.name))
         for region in board.regionList:
             if region.name == region_name:
-                region.add_units(unit_types[0].copy_unit())
+                if region.owner != player.name:
+                    print("This region is not owned by you")
+                    break
+                region.add_units(Soldier())
                 succeeded = True
+                break
 
 
-def play_turn(board, player, unit_types):
+def play_turn(board, player):
     print_board(board)
-    add_unit(board, player, unit_types)
+    add_unit(board, player)
 
 
-def game_loop(turn, board, players, unit_types):
+def game_loop(turn, board, players):
     if turn == 0:
         players_choose_lands(board, players)
+    print("--------------------")
+    print("START OF THE GAME!!!")
+    print("--------------------")
     for player in players:
-        play_turn(board, player, unit_types)
+        play_turn(board, player)
     return True
 
 
@@ -112,11 +140,14 @@ def main():
     won = False
     board = initialize_board()
     players = initialize_players(2)
-    unit_types = initialize_unit_types()
     turn = 0
     while not won:
         # make sure this is not an endless loop
-        won = game_loop(turn, board, players, unit_types)
+        won = game_loop(turn, board, players)
+    print("-------------------")
+    print("The End State Was:")
+    print_board(board)
+    print("-----------------------")
 
 
 if __name__ == "__main__":

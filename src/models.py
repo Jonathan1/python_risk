@@ -82,8 +82,19 @@ class Unit(object):
         self.power = power
         self.movement = movement
 
-    def copy_unit(self):
-        return Unit(self.name, self.power, self.movement)
+
+class Soldier(Unit):
+    def __init__(self):
+        self.name = "Soldier"
+        self.power = 1
+        self.movement = 1
+
+
+class Horse(Unit):
+    def __init__(self):
+        self.name = "Horse"
+        self.power = 2
+        self.movement = 3
 
 
 class Action(object):
