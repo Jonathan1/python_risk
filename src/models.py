@@ -12,11 +12,17 @@ class Player(object):
 
 class Board(object):
     """
-        A board consists of multiple Continents.
+        A board consists of multiple Regions and Continents.
     """
 
-    def __init__(self, continents):
+    def __init__(self, continents, regions):
         self.continentList = continents
+        self.regionList = regions
+
+    def get_region_by_name(self, name):
+        for region in self.regionList:
+            if region.name == name:
+                return region
 
 
 class Continent(object):
@@ -32,23 +38,52 @@ class Region(object):
     """
         A region has a list of neighbouring regions and for now is represented as a rectangle. Therefore it has an x, y
         and a size variable
+        A region also has an owner and a list of units. Upon creation these are None.
     """
-    def __init__(self, x, y, length, width):
+    def __init__(self, name, x, y, length, width):
         self.neighbours = []
+        self.name = name
         self.x = x
         self.y = y
         self.length = length
         self.width = width
         self.owner = None
+        self.units = []
+
+    # The added neighbour can be a either one entry, or a list.
+    def add_neighbour(self, neighbour):
+        self.neighbours.append(neighbour)
+
+    @staticmethod
+    def add_neighbours(neighbour_1, neighbour_2):
+        neighbour_1.add_neighbour(neighbour_2)
+        neighbour_2.add_neighbour(neighbour_1)
+
+    def change_owner(self, owner):
+        self.owner = owner
+
+    def add_units(self, units):
+        if type(units) is list:
+            for unit in units:
+                self.units.append(unit)
+        else:
+            self.units.append(units)
+
+    def remove_units(self, units):
+        self.units.remove(units)
 
 
 class Unit(object):
-
-    def __init__(self, power, movement):
+    """
+        A Unit has a power and movement. Default for both is 1
+    """
+    def __init__(self, name, power=1, movement=1):
+        self.name = name
         self.power = power
         self.movement = movement
-        self.owner = None
-        self.location = None
+
+    def copy_unit(self):
+        return Unit(self.name, self.power, self.movement)
 
 
 class Action(object):
