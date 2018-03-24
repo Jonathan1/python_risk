@@ -4,9 +4,10 @@ from src.models import Board, Continent, Region, Player, Unit, Soldier, Horse
 def print_board(board):
     for region in board.regionList:
         if region.owner is None:
-            print("region {}, owner O, soldiers 0, horses 0, power 0".format(region.name))
+            print("region {}, owner O, soldiers 0, horses 0, attack 0, defense 0".format(region.name))
         else:
-            power = 0
+            attack = 0
+            defense = 0
             soldiers = 0
             horses = 0
             for unit in region.units:
@@ -14,8 +15,11 @@ def print_board(board):
                     horses += 1
                 elif unit.name == "Soldier":
                     soldiers += 1
-                power += unit.power
-            print("region {}, owner {}, soldiers {}, horses {},  power {}".format(region.name, region.owner, soldiers, horses, power))
+                attack += unit.attack
+                defense += unit.defense
+            print("region {}, owner {}, soldiers {}, horses {},  attack {}, defense {}".format(region.name,
+                                                                                               region.owner, soldiers,
+                                                                                               horses, attack, defense))
 
 
 def initialize_board():
@@ -53,7 +57,6 @@ def owned_region_names(region_list, player):
 
 def choose_land(board, player):
     region_name = input("{} choose a land to occupy, please refer to its name".format(player.name))
-    succeeded = False
     for region in board.regionList:
         if region.name == region_name:
             if region.owner is not None:
@@ -61,21 +64,16 @@ def choose_land(board, player):
                 break
             region.change_owner(player.name)
             region.add_units(Soldier())
-            succeeded = True
-            break
+            return True
+    print("please put in a valid name, one of the following:")
+    print(region_names(board.regionList))
+    return False
+
+
+def function_loop(fn, *args):
+    succeeded = False
     while not succeeded:
-        print("please put in a valid name, one of the following:")
-        print(region_names(board.regionList))
-        region_name = input("player {} choose a land to occupy".format(player.name))
-        for region in board.regionList:
-            if region.name == region_name:
-                if region.owner is not None:
-                    print("region is already taken")
-                    break
-                region.change_owner(player.name)
-                region.add_units(Soldier())
-                succeeded = True
-                break
+        succeeded = fn(*args)
 
 
 def all_lands_owned(board):
@@ -90,39 +88,44 @@ def players_choose_lands(board, players):
     print_board(board)
     while not all_lands_owned(board):
         for player in players:
-            choose_land(board, player)
+            function_loop(choose_land, board, player)
         print("Current State:")
         print_board(board)
 
 
 def add_unit(board, player):
     region_name = input("{} choose a region to add a unit too".format(player.name))
-    succeeded = False
     for region in board.regionList:
         if region.name == region_name:
             if region.owner != player.name:
                 print("This region is not owned by you")
                 break
             region.add_units(Soldier())
-            succeeded = True
-            break
-    while not succeeded:
-        print("please put in a valid name, one of the following:")
-        print(owned_region_names(board.regionList, player))
-        region_name = input("{} choose a region to add a unit too".format(player.name))
-        for region in board.regionList:
-            if region.name == region_name:
-                if region.owner != player.name:
-                    print("This region is not owned by you")
-                    break
-                region.add_units(Soldier())
-                succeeded = True
+            return True
+    print("please put in a valid name, one of the following:")
+    print(owned_region_names(board.regionList, player))
+    return False
+
+
+def move_unit(board, player):
+    print("Choose a Region, a number of Soldiers from that region and a Region to move them too")
+    region_name = input("{} choose a region to move units from".format(player.name))
+    for region in board.regionList:
+        if region.name == region_name:
+            if region.owner != player.name:
+                print("This region is not owned by you")
                 break
+            region.print_units()
+            return True
+    print("please put in a valid name, one of the following:")
+    print(owned_region_names(board.regionList, player))
+    return False
 
 
 def play_turn(board, player):
     print_board(board)
-    add_unit(board, player)
+    function_loop(add_unit, board, player)
+    function_loop(move_unit, board, player)
 
 
 def game_loop(turn, board, players):

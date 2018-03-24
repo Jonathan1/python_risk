@@ -72,29 +72,52 @@ class Region(object):
     def remove_units(self, units):
         self.units.remove(units)
 
+    def print_units(self):
+        counts = {}
+        for unit in self.units:
+            name = unit.name
+            if name in counts:
+                counts[name]+= 1
+            else:
+                counts[name] = 1
+        print("Units in this Region: {}".format(counts))
+
 
 class Unit(object):
     """
         A Unit has a power and movement. Default for both is 1
     """
-    def __init__(self, name, power=1, movement=1):
+    def __init__(self, name, attack=1, defense=1, movement=1):
         self.name = name
-        self.power = power
+        self.attack = attack
+        self.defense = defense
         self.movement = movement
+        self.moved = 0
+
+    def reset_movement(self):
+        self.moved = 0
+
+    def has_movement_left(self):
+        if self.moved >= self.movement:
+            return False
+        else:
+            return True
+
+    def count_movement_left(self):
+        return self.movement - self.moved
+
+    def __str__(self):
+        return self.name
 
 
 class Soldier(Unit):
     def __init__(self):
-        self.name = "Soldier"
-        self.power = 1
-        self.movement = 1
+        super().__init__("Soldier", 1, 1, 1)
 
 
 class Horse(Unit):
     def __init__(self):
-        self.name = "Horse"
-        self.power = 2
-        self.movement = 3
+        super().__init__("Horse", 2, 1, 3)
 
 
 class Action(object):
