@@ -9,6 +9,25 @@ class Player(object):
         self.units = []
         self.regions = []
 
+    def input_request(self):
+        pass
+
+
+class HumanPlayer(Player):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def input_request(self):
+        pass
+
+
+class CpucPlayer(Player):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def input_request(self):
+        pass
+
 
 class Board(object):
     """
@@ -119,6 +138,3 @@ class Horse(Unit):
     def __init__(self):
         super().__init__("Horse", 2, 1, 3)
 
-
-class Action(object):
-    pass
